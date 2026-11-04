@@ -1,5 +1,7 @@
 # Document templates
 
+For ADRs, use `scripts/adr.py`; its fixed renderer is the executable template. Supply fields as JSON according to `references/generator.md`. Do not manually produce or edit ADR Markdown. The ADR outline below documents section order and field meanings; evidence documents still use the evidence templates.
+
 Replace placeholders with actual information. Use `[]` for absent relationships and relative Markdown links for populated relationships. Record timestamps with a timezone. Keep the status current and append history entries.
 
 ## Contents

@@ -70,7 +70,7 @@ The main agent coordinates the conversation and handoffs. The architect owns dec
 
 ## Installation
 
-Requires Python 3, access to the project files, and an agent environment that supports separate agents and command execution. Git is needed for the installation commands below. The Python conflict checker uses only the standard library.
+Requires Python 3.9 or newer, access to the project files, and an agent environment that supports separate agents and command execution. Git is needed for the installation commands below. The Python conflict checker uses only the standard library.
 
 Clone the repository:
 
@@ -189,7 +189,44 @@ Maintain explicit relative links and their reverse relationships:
 | `extends` | `extended_by` |
 | `evidence` | `proves` |
 
-The Markdown documents form the graph. No separate graph database is required. Templates are in [references/templates.md](develop-with-adr/references/templates.md).
+The registry records the graph; generated Markdown provides the human-readable history, and DOT/GraphML provide viewer files. No separate graph database is required. Templates are in [references/templates.md](develop-with-adr/references/templates.md).
+
+## Deterministic ADR generation and graph files
+
+The agent supplies researched content as JSON arguments to a Python generator. The script fixes document structure and section order, assigns IDs, records history and updates relationships. It never asks an LLM to lay out the ADR or diagram.
+
+```sh
+python3 /path/to/develop-with-adr/scripts/adr.py --project /path/to/project create --input decision.json
+python3 /path/to/develop-with-adr/scripts/adr.py --project /path/to/project link --id ADR-0002 --relation depends_on --target ADR-0001
+python3 /path/to/develop-with-adr/scripts/adr.py --project /path/to/project sync
+```
+
+Supply real investigated content using the [input example](develop-with-adr/references/adr-input.example.json). See the [full command reference](develop-with-adr/references/generator.md) for draft updates, explicit approvals, replacement decisions, completion evidence and recovery.
+
+| File | Purpose |
+| --- | --- |
+| `docs/adr/registry.json` | Canonical records, history, fingerprints and relationships |
+| `docs/adr/ADR-0001-short-slug.md` | Generated ADR following the fixed template |
+| `docs/adr/graph.dot` | Graphviz DOT diagram with document links |
+| `docs/adr/graph.graphml` | GraphML interchange graph with yEd labels |
+
+Every successful mutation refreshes both graph files, including inactive decisions and attached evidence. Open DOT with a Graphviz-compatible viewer or GraphML with a compatible graph editor such as yEd. With Graphviz installed, render an image using:
+
+```sh
+dot -Tsvg docs/adr/graph.dot -o docs/adr/graph.svg
+```
+
+The script requires Python 3.9 or newer and no third-party Python packages. Viewers are optional. SVG rendering is separate from graph generation.
+
+Missing fields, unknown arguments, duplicate criterion IDs, broken links, dependency/replacement cycles, changed approved content and altered evidence are rejected. Existing unmanaged ADRs require explicit migration; the generator does not parse or overwrite legacy prose.
+
+The script validates structured receipts, not the truth of decisions, user consent or actual check execution. Each output file is written atomically, but the set of files is not one filesystem transaction. The registry commits first; `sync --recover` restores projections after an interrupted write once the registry has been inspected.
+
+Run regression tests from the skill directory:
+
+```sh
+python3 -m unittest discover -s tests -v
+```
 
 ## Conflicting skills
 
@@ -230,6 +267,8 @@ Discovery covers local skill directories and supplied catalog names. Nested dire
 | [templates.md](develop-with-adr/references/templates.md) | ADR and evidence templates |
 | [example-adr.md](develop-with-adr/references/example-adr.md) | Worked hypothetical ADR with alternatives, consequences, model choice and triggers |
 | [portability.md](develop-with-adr/references/portability.md) | Agent handoffs and environment requirements |
+| [adr.py](develop-with-adr/scripts/adr.py) | Deterministic ADR generator and graph updater |
+| [generator.md](develop-with-adr/references/generator.md) | CLI commands and input contract |
 | [check_conflicting_skills.py](develop-with-adr/scripts/check_conflicting_skills.py) | Read-only conflict discovery |
 | [openai.yaml](develop-with-adr/agents/openai.yaml) | Codex interface metadata |
 | [icon.svg](develop-with-adr/assets/icon.svg) | Skill icon |

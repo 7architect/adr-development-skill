@@ -23,6 +23,16 @@ Resolve placeholders to actual paths and quote paths as needed. Pass every name 
 - The script detects conflicts; the coordinating agent enforces the exclusions. Also exclude either skill if the session catalog reveals it even when its files are not accessible. If the script cannot run, report that limitation and apply known exclusions without claiming a successful scan.
 - Rerun after resuming a session or changes to available skills. Never delete, rename, or globally disable installed skills as part of this check.
 
+## Deterministic ADR documents and graph
+
+- Before creating or changing ADRs, read [generator instructions](references/generator.md) and the [input example](references/adr-input.example.json). Use `scripts/adr.py` for every new ADR, draft update, relationship, approval, completion, and graph refresh. Do not compose ADR Markdown or graph syntax manually.
+- Supply researched content through a JSON input file with the exact required fields. The script fixes section order, validates arguments, assigns IDs, escapes text, records history and generates Markdown plus DOT and GraphML. The script does not invent the problem, solution, measurements or evidence.
+- Invoke `python3 <skill>/scripts/adr.py --project <repository> create --input <decision.json>` after the architect investigates and clarifies the problem. Use `update` for an unapproved draft, `link` for typed links, `approve` only after actual explicit user approval, and `complete` only after the architect actually executes all checks.
+- Use `approve --replace ... --rationale ...` to record replacement approval and update old ADR statuses and backlinks together. Never simulate user consent or independent verification by filling a receipt with invented values.
+- Every successful change rebuilds `docs/adr/graph.dot` and `docs/adr/graph.graphml` from canonical `docs/adr/registry.json`. Run `sync` to refresh graphs without adding history. Preserve the registry with the documents.
+- Stop on invalid inputs, unknown legacy ADR files, cycles, changed approved bodies, altered evidence or manual projection edits. Do not delete history to resolve an error. Use `sync --recover` only after inspecting the canonical registry and explicitly choosing to restore generated projections.
+- A script receipt validates structure and coverage, not actual user consent or execution. Keep all human approval and independent verification rules below.
+
 ## Entry and roles
 
 1. Before starting the workflow, ask for the domain on which the architect should focus. Accept business or technical domains. Reuse an explicitly supplied domain without asking again.
@@ -35,7 +45,7 @@ Resolve placeholders to actual paths and quote paths as needed. Pass every name 
 
 - Have the architect read project instructions, code, related ADRs, and evidence, and clarify the problem and constraints. Do not create an ADR before investigating the code and clarifying the problem. If no code exists yet, record that fact and investigate available materials.
 - Identify conflicts with current decisions. First present the conflict to the user and request a decision; only after the response prepare a new ADR. Permission to prepare a replacement is not approval to implement it.
-- Write an ADR in `docs/adr/` using the [templates](references/templates.md). Include a brief problem statement, proposed solution, rationale, and verifiable acceptance criteria with stable IDs. Set the initial status to `accepted-for-discussion`.
+- Generate an ADR in `docs/adr/` with `scripts/adr.py create`; the [templates](references/templates.md) describe its fixed structure. Include a brief problem statement, proposed solution, rationale, and verifiable acceptance criteria with stable IDs. Set the initial status to `accepted-for-discussion`.
 - Require explicit alternatives with reasons for not choosing them, positive and negative consequences, and observable reconsideration triggers in every ADR. Do not invent options or neutral consequences to fill a template. If no viable alternative exists, explain the investigation and constraints.
 - Distinguish acceptance criteria (proof the implementation works now) from reconsideration triggers (observations that may invalidate the choice later). Each trigger states a signal, threshold or event, and evidence source. A review date alone is insufficient. A trigger reopens investigation and user discussion; it never authorizes changes automatically.
 - For decisions selecting a neural model (LLM, OCR, embeddings, or similar), require a model-choice section: build/host, buy/API, or prompt a general model; alternatives; coupling to prompts, schemas, evaluations and infrastructure; operating cost and unacceptable volume; switching cost; and the observation that reopens the decision. Label estimates and unknown measurements. Omit this section for unrelated decisions.
@@ -82,8 +92,8 @@ Use exactly five canonical `status` values. The Russian labels below identify th
 
 ## Document graph
 
-- Read the [templates](references/templates.md) before creating documents and the [portability guidance](references/portability.md) when using a new environment.
+- Read the [templates](references/templates.md) for field meanings and the [portability guidance](references/portability.md) in a new environment. The generator is authoritative for ADR rendering; use the evidence templates for the separate evidence documents.
 - Store ADRs as `docs/adr/ADR-0001-short-slug.md` and evidence as `docs/evidence/EVID-0001-short-slug.md`. Choose the next unused number with existing history in mind; do not renumber old documents.
 - Use explicit relative Markdown links and relationship types: `replaces` / `replaced_by`, `depends_on` / `required_by`, `extends` / `extended_by`, and `evidence` / `proves`. Maintain backlinks and identify whether evidence proves implementation or the reason for rejection/replacement.
-- Treat ADRs and evidence as the graph's documents; a separate graph database is unnecessary. At handoffs, check link targets, backlinks, absence of dependency cycles, and status conditions.
+- Keep ADR records and relationships in `docs/adr/registry.json` as the canonical state. ADR Markdown, DOT and GraphML are generated projections; evidence remains in `docs/evidence/` and is linked with hashes. No graph database is required. At handoffs run `sync` to check references, backlinks, cycles, evidence integrity and projection consistency.
 - At the end of each step, report the ADR status, result, document links, and the specific decision needed if waiting for the user. Do not describe merely approved or implemented-but-unverified work as completed.

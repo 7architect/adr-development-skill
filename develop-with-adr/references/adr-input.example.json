@@ -1,0 +1,34 @@
+{
+  "title": "Queue \"history\" <safe>",
+  "domain": "documents",
+  "problem": "Retries duplicate writes.",
+  "solution": "Use stable request keys.",
+  "rationale": "A retry retains its logical identity.",
+  "alternatives": [
+    {
+      "option": "No retries",
+      "benefits": "Simple",
+      "costs": "Lost work",
+      "reason": "Recovery required"
+    }
+  ],
+  "positive": [
+    "Repeatable writes"
+  ],
+  "negative": [
+    "Key storage required"
+  ],
+  "triggers": [
+    {
+      "observation": "Keys exceed storage budget",
+      "evidence": "Storage metric",
+      "reason": "Reassess retention"
+    }
+  ],
+  "criteria": [
+    {
+      "id": "AC-01",
+      "text": "A retry produces one external row."
+    }
+  ]
+}
