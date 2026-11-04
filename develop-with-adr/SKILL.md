@@ -1,6 +1,7 @@
 ---
 name: develop-with-adr
 description: "Develop software through a separate domain architect and implementation agent, ADRs, and a graph of evidence. Use for ADR-driven development, architecture decisions requiring explicit user approval, implementation, and independent verification. Supports business and technical domains in Codex and Claude Code."
+license: "ADR Development Skill No-Resale License; see LICENSE"
 ---
 
 # Develop with ADRs

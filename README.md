@@ -227,3 +227,14 @@ Discovery covers local skill directories and supplied catalog names. Nested dire
 The skill follows the [Agent Skills format](https://agentskills.io/specification). Its approval gates and role boundaries are agent instructions, not an external permission-enforcement system. Separate agents are required for the intended workflow; one agent switching roles does not satisfy independent verification.
 
 The conflict checker and workflow scenarios have been checked. A complete end-to-end run in both Codex and Claude Code has not yet been verified.
+
+## License
+
+This project uses the custom [ADR Development Skill No-Resale License](LICENSE).
+
+- You may use and modify the skill for free, including in commercial work.
+- You may redistribute the skill and modified copies free of charge, with the license and existing copyright notices.
+- You may not sell the skill or copies of it, or charge for access to the skill itself.
+- You may charge for products and services created with the skill. Using it does not impose this license on your code, ADRs, or other output.
+
+Because it restricts resale, this is a source-available license, not an OSI-approved open-source license. The full license is also included in the installable [skill folder](develop-with-adr/LICENSE).

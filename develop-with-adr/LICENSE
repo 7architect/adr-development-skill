@@ -1,0 +1,58 @@
+ADR Development Skill No-Resale License
+Version 1.0
+
+Copyright (c) 2026 7architect
+
+This is a custom source-available license, not an OSI-approved open-source
+license.
+
+1. Scope
+
+"Skill" means the ADR Development Skill files, including its instructions,
+scripts, templates, documentation, and assets, to which this license is
+applied. The permissions and restrictions below apply to the Skill and
+copies of it, including modified copies.
+
+2. Permission
+
+Permission is granted, free of charge, to any person or organization to
+use, copy, modify, and redistribute the Skill, for personal or commercial
+purposes, subject to the conditions below. You may use and modify the
+Skill in paid work, including developing commercial products and providing
+professional services.
+
+3. No resale
+
+You may not sell the Skill or copies of it, or charge a fee for access to
+or distribution of the Skill itself. Redistribution of the Skill must be
+free of charge.
+
+This restriction does not prohibit charging for work performed using the
+Skill, or for products and services created with its assistance. Code,
+ADRs, evidence documents, and other output created using the Skill,
+including completed documents based on its templates, are not subject to
+this license merely because the Skill was used to create them. This
+exception does not permit selling the Skill itself as part of that output.
+
+4. Notices
+
+Include this license and retain existing copyright notices in all copies
+or substantial portions of the Skill that you redistribute. Modified
+copies remain subject to this license for the material taken from the
+Skill.
+
+5. Third-party material
+
+This license grants rights only to material that the copyright holder is
+entitled to license. Any separately identified third-party material
+remains subject to its own license.
+
+6. Disclaimer
+
+THE SKILL IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. TO THE MAXIMUM
+EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE COPYRIGHT HOLDER
+BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION
+WITH THE SKILL OR ITS USE OR OTHER DEALINGS IN THE SKILL.
