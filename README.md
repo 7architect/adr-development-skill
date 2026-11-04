@@ -1,5 +1,9 @@
 # ADR Development Skill
 
+[![README views](https://hits.sh/github.com/7architect/adr-development-skill.svg?label=views&color=007ec6)](https://hits.sh/github.com/7architect/adr-development-skill/)
+
+<!-- Counts badge requests, not unique visitors or GitHub's native traffic statistics. -->
+
 A development workflow for Codex and Claude Code that keeps architecture decisions, implementation, and proof of completion connected.
 
 Start with a domain and a problem. A dedicated domain architect investigates the repository and proposes a solution in an Architecture Decision Record (ADR). You approve the decision before a separate implementation agent starts work. The architect then runs the checks independently and records whether the result meets every acceptance criterion.
