@@ -1,8 +1,54 @@
 # ADR Development Skill
 
-An Agent Skills workflow for developing software through a domain architect, a separate implementation agent, explicit approvals, and verifiable results.
+A development workflow for Codex and Claude Code that keeps architecture decisions, implementation, and proof of completion connected.
 
-Every decision is recorded in an Architecture Decision Record (ADR). ADRs and evidence documents form a persistent graph of decisions, dependencies, replacements, and verification history.
+Start with a domain and a problem. A dedicated domain architect investigates the repository and proposes a solution in an Architecture Decision Record (ADR). You approve the decision before a separate implementation agent starts work. The architect then runs the checks independently and records whether the result meets every acceptance criterion.
+
+The deliverable is working code together with a traceable explanation of what was decided, why it was approved, which version was checked, and what the checks demonstrated.
+
+## Why this workflow
+
+Agent-driven projects can lose the reasoning behind their code as conversations grow or sessions change. A solution can drift during implementation, acceptance criteria can move, and a claim of completion can become difficult to reproduce.
+
+This workflow puts those decisions in the repository:
+
+- Record the problem, solution, rationale, and acceptance criteria before implementation.
+- Require explicit approval before turning a proposal into work.
+- Preserve approved solutions and criteria. Changing either requires a new ADR.
+- Separate implementation from independent verification.
+- Keep every decision and evidence document, including rejected decisions and failed checks.
+
+ADRs are the project's decision history. Evidence connects that history to a specific version of the implementation and reproducible verification results.
+
+## Responsibilities
+
+| Role | Responsibility |
+| --- | --- |
+| User | Select the domain, explain the problem, approve ADRs, resolve conflicts, and authorize correction cycles |
+| Coordinator | Run the initial conflict check, manage the conversation, and pass documents and constraints between agents |
+| Domain architect | Investigate the problem, propose decisions, maintain their relationships, independently run checks, and complete verified ADRs |
+| Implementer | Implement approved ADRs within their scope and prepare reproducible evidence |
+
+One architect stays focused on the selected domain for the session. The domain can describe business behavior or a technical concern. For example, it can be payments, document processing, storage, or orchestration.
+
+## A graph of decisions and evidence
+
+Documents are never deleted. New decisions can depend on, extend, or replace previous ADRs. Evidence documents explain either why a decision was rejected or how its implementation was verified.
+
+For example:
+
+1. `ADR-0001` defines an approach to retrying document processing. Its verification evidence records the checked version and results.
+2. A new requirement exposes a conflict with that decision. The architect asks you how to resolve it before preparing a replacement.
+3. You approve `ADR-0002`. It links to `ADR-0001` through `replaces`, and the old ADR becomes `rejected` with a linked rejection rationale.
+4. The old implementation's evidence remains available. The new ADR stays open until its own implementation passes independent verification.
+
+Approving a replacement does not mean the replacement is already implemented. Completing an ADR requires evidence of its own.
+
+## When to use it
+
+Use this workflow when the reasoning behind a change matters: architecture changes, domain behavior, cross-component work, and decisions that later contributors need to understand.
+
+It adds documentation and approval steps. Account for that overhead when choosing it for small, routine changes. The approval rules are part of the workflow even when the implementation looks straightforward.
 
 ## How it works
 
