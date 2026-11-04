@@ -2,6 +2,12 @@
 
 Replace placeholders with actual information. Use `[]` for absent relationships and relative Markdown links for populated relationships. Record timestamps with a timezone. Keep the status current and append history entries.
 
+## Contents
+
+- ADR
+- Implementation evidence
+- Rejection or replacement rationale evidence
+
 ## ADR
 
 ```markdown
@@ -21,7 +27,39 @@ created: <ISO date>
 <Scope, behavior, and required changes.>
 
 ## Rationale
-<Why this solves the problem; material alternatives and tradeoffs.>
+<Why this fits the constraints. Link supporting facts and label assumptions.>
+
+## Alternatives considered
+| Alternative | Benefits | Costs / limitations | Reason not selected |
+| --- | --- | --- | --- |
+| <actual alternative; include the status quo when viable> | ... | ... | ... |
+
+<If no viable alternative was found, explain why. Do not invent options.>
+
+## Consequences
+### Positive
+- <concrete benefit>
+
+### Negative
+- <cost, risk, operational burden, or limitation>
+
+## Reconsideration triggers
+| Observation / threshold | Evidence source | Why to reconsider |
+| --- | --- | --- |
+| <measurable condition or event> | <metric, evaluation, requirement, or dependency change> | ... |
+
+<Triggers start investigation and discussion; they do not bypass approval.>
+
+## Model choice
+<Include only when selecting or committing to a neural model; otherwise remove.>
+
+| Aspect | Decision and basis |
+| --- | --- |
+| Approach and alternatives | <build/host, buy/API, or prompt a general model; why alternatives were not selected> |
+| Coupling | <prompts, output schemas, evaluation datasets, infrastructure, latency budgets> |
+| Operating cost | <cost basis and volume where it becomes unacceptable; label estimates> |
+| Switching cost | <data, code, evaluation, migration and operations work required> |
+| Reopening observation | <specific reconsideration trigger above> |
 
 ## Acceptance criteria
 - AC-01: <observable outcome and verification method>
@@ -45,7 +83,7 @@ in repository history or provide a verifiable hash of that text. Do not invent c
 - <timestamp>: Created after investigation; accepted-for-discussion.
 ```
 
-When replacing an ADR, add `replaced_by` and rejection evidence to the old ADR, and `replaces` to the new ADR. When completing an ADR, add implementation evidence. In both cases append the old and new statuses, reason, date, and links to history. Do not rewrite an approved solution.
+When replacing an ADR, add `replaced_by` and decision-change evidence to the old ADR, and `replaces` to the new ADR. At approval of the replacement, use `superseded` for a previously approved ADR and `rejected` for a never-approved proposal. When completing an ADR, add implementation evidence. In both cases append the old and new statuses, reason, date, and links to history. Do not rewrite an approved solution.
 
 ## Implementation evidence
 
@@ -87,23 +125,23 @@ commit, a link to the saved diff, and hashes of the checked files.>
 <Append subsequent attempts, preserving earlier results and versions.>
 ```
 
-## Rejection rationale evidence
+## Rejection or replacement rationale evidence
 
 ```markdown
 ---
 id: EVID-0002
-kind: rejection-rationale
+kind: decision-change-rationale
 created: <ISO date>
 ---
 
-# EVID-0002: Reason for rejecting ADR-0001
+# EVID-0002: Reason for changing ADR-0001
 
 ## Relationships
-- proves: [ADR-0001](../adr/ADR-0001-short-slug.md) - reason for rejection
+- proves: [ADR-0001](../adr/ADR-0001-short-slug.md) - reason for rejection or replacement
 - replacement: [ADR-0002](../adr/ADR-0002-short-slug.md)
 
 ## Basis
-<Facts, constraints, or user decision causing the earlier decision to be rejected.
+<Facts, constraints, or user decision causing the earlier decision to be rejected or superseded.
 Separate observed facts from assumptions; include supporting evidence when available.>
 
 ## Replacement approval

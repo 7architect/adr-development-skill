@@ -36,6 +36,10 @@ Resolve placeholders to actual paths and quote paths as needed. Pass every name 
 - Have the architect read project instructions, code, related ADRs, and evidence, and clarify the problem and constraints. Do not create an ADR before investigating the code and clarifying the problem. If no code exists yet, record that fact and investigate available materials.
 - Identify conflicts with current decisions. First present the conflict to the user and request a decision; only after the response prepare a new ADR. Permission to prepare a replacement is not approval to implement it.
 - Write an ADR in `docs/adr/` using the [templates](references/templates.md). Include a brief problem statement, proposed solution, rationale, and verifiable acceptance criteria with stable IDs. Set the initial status to `accepted-for-discussion`.
+- Require explicit alternatives with reasons for not choosing them, positive and negative consequences, and observable reconsideration triggers in every ADR. Do not invent options or neutral consequences to fill a template. If no viable alternative exists, explain the investigation and constraints.
+- Distinguish acceptance criteria (proof the implementation works now) from reconsideration triggers (observations that may invalidate the choice later). Each trigger states a signal, threshold or event, and evidence source. A review date alone is insufficient. A trigger reopens investigation and user discussion; it never authorizes changes automatically.
+- For decisions selecting a neural model (LLM, OCR, embeddings, or similar), require a model-choice section: build/host, buy/API, or prompt a general model; alternatives; coupling to prompts, schemas, evaluations and infrastructure; operating cost and unacceptable volume; switching cost; and the observation that reopens the decision. Label estimates and unknown measurements. Omit this section for unrelated decisions.
+- Read the [worked example](references/example-adr.md) to calibrate depth. Its facts and figures are hypothetical, not project evidence.
 - Separate independent decisions into separate ADRs and explicitly record dependencies. Do not introduce dependency or replacement cycles.
 - Present the specific ADR or an enumerated set of ADRs for explicit user approval to implement. Do not infer approval from silence, a general request to build something, or permission to investigate.
 - Record the user's response, date, and approved document version. Set `accepted-for-work` only after explicit approval. Allow explicit approval of an enumerated set of ADRs.
@@ -58,26 +62,28 @@ Resolve placeholders to actual paths and quote paths as needed. Pass every name 
 
 ## Statuses and history preservation
 
-Use exactly four canonical `status` values. The Russian labels below identify their original meanings; preserve existing project history rather than silently rewriting legacy documents.
+Use exactly five canonical `status` values. The Russian labels below identify their original meanings; preserve existing project history rather than silently rewriting legacy documents.
 
 | Status | Original label | Condition |
 | --- | --- | --- |
 | `accepted-for-discussion` | принято к обсуждению | Investigated proposal awaiting discussion or approval |
 | `accepted-for-work` | принято к работе | User explicitly approved the specific ADR |
 | `completed` | завершен | Architect independently verified all criteria; evidence is linked |
-| `rejected` | отклонено | A new approved ADR and rejection rationale/evidence exist |
+| `rejected` | отклонено | Never-approved proposal declined in favor of a new approved ADR, with linked rationale |
+| `superseded` | заменен | Previously approved decision replaced by a new approved ADR, with linked rationale |
 
 - Never delete ADRs or evidence documents or reuse their IDs. Before approval, allow draft refinement while recording substantial changes.
-- After approval, keep the solution body and criteria immutable. Allow current status and link updates with appended history entries. Preserve earlier entries, evidence, and verification results. Do not overwrite a failed check with a passing result.
-- Reject the old ADR at the moment the user explicitly approves its replacement for work, including when the old ADR was completed. Immediately link the old ADR to its replacement and a separate rejection-rationale document. This proves why the old decision was rejected; it does not prove the new implementation works.
-- Preserve previous completion, its date, version, and evidence. Explicitly record that the replacement may not yet be implemented. Rejecting a document does not itself remove working code.
-- Do not reject an ADR without a new decision. If the user has not chosen a replacement, retain the current status and append a discussion entry. Do not invent a replacement merely to enable a status transition.
-- If a dependency is rejected or replaced, pause affected work and have the architect assess the impact. Do not silently rewire approved decisions.
+- After approval, keep all approved decision content immutable, including the solution, rationale, alternatives, consequences, triggers, model-choice details, and criteria. Allow current status and link updates with appended history entries. Preserve earlier entries, evidence, and verification results. Do not overwrite a failed check with a passing result.
+- When the user explicitly approves a replacement for work, mark the old ADR `superseded` if it was previously approved (`accepted-for-work` or `completed`), or `rejected` if it was never approved. Link it to the replacement and a separate decision-change rationale document. This explains the change; it does not prove the replacement implementation works.
+- Preserve previous completion, its date, version, and evidence. Explicitly record that the replacement may not yet be implemented. Rejecting or superseding a document does not itself remove working code.
+- Do not reject or supersede an ADR without a new approved decision. If the user has not chosen a replacement, retain the current status and append a discussion entry. Do not invent a replacement merely to enable a status transition.
+- Preserve legacy `rejected` records that meant replacement; interpret their history and replacement links without silently rewriting old statuses.
+- If a dependency is rejected or superseded, pause affected work and have the architect assess the impact. Do not silently rewire approved decisions.
 
 ## Document graph
 
 - Read the [templates](references/templates.md) before creating documents and the [portability guidance](references/portability.md) when using a new environment.
 - Store ADRs as `docs/adr/ADR-0001-short-slug.md` and evidence as `docs/evidence/EVID-0001-short-slug.md`. Choose the next unused number with existing history in mind; do not renumber old documents.
-- Use explicit relative Markdown links and relationship types: `replaces` / `replaced_by`, `depends_on` / `required_by`, `extends` / `extended_by`, and `evidence` / `proves`. Maintain backlinks and identify whether evidence proves implementation or the reason for rejection.
+- Use explicit relative Markdown links and relationship types: `replaces` / `replaced_by`, `depends_on` / `required_by`, `extends` / `extended_by`, and `evidence` / `proves`. Maintain backlinks and identify whether evidence proves implementation or the reason for rejection/replacement.
 - Treat ADRs and evidence as the graph's documents; a separate graph database is unnecessary. At handoffs, check link targets, backlinks, absence of dependency cycles, and status conditions.
 - At the end of each step, report the ADR status, result, document links, and the specific decision needed if waiting for the user. Do not describe merely approved or implemented-but-unverified work as completed.

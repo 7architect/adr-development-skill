@@ -20,7 +20,7 @@ This workflow puts those decisions in the repository:
 - Require explicit approval before turning a proposal into work.
 - Preserve approved solutions and criteria. Changing either requires a new ADR.
 - Separate implementation from independent verification.
-- Keep every decision and evidence document, including rejected decisions and failed checks.
+- Keep every decision and evidence document, including rejected proposals, superseded decisions, and failed checks.
 
 ADRs are the project's decision history. Evidence connects that history to a specific version of the implementation and reproducible verification results.
 
@@ -37,13 +37,13 @@ One architect stays focused on the selected domain for the session. The domain c
 
 ## A graph of decisions and evidence
 
-Documents are never deleted. New decisions can depend on, extend, or replace previous ADRs. Evidence documents explain either why a decision was rejected or how its implementation was verified.
+Documents are never deleted. New decisions can depend on, extend, or replace previous ADRs. Evidence documents explain either why a proposal was rejected, why a decision was superseded, or how its implementation was verified.
 
 For example:
 
 1. `ADR-0001` defines an approach to retrying document processing. Its verification evidence records the checked version and results.
 2. A new requirement exposes a conflict with that decision. The architect asks you how to resolve it before preparing a replacement.
-3. You approve `ADR-0002`. It links to `ADR-0001` through `replaces`, and the old ADR becomes `rejected` with a linked rejection rationale.
+3. You approve `ADR-0002`. It links to `ADR-0001` through `replaces`, and the old ADR becomes `superseded` with a linked replacement rationale.
 4. The old implementation's evidence remains available. The new ADR stays open until its own implementation passes independent verification.
 
 Approving a replacement does not mean the replacement is already implemented. Completing an ADR requires evidence of its own.
@@ -135,15 +135,26 @@ Providing the domain and problem in the initial request avoids redundant questio
 | `accepted-for-discussion` | Investigated proposal ready for discussion | Architect |
 | `accepted-for-work` | Specific ADR explicitly approved for implementation | User |
 | `completed` | Every criterion independently verified, with linked evidence | Architect |
-| `rejected` | Replaced by a newly approved decision, with linked rejection rationale | User approval of the replacement |
+| `rejected` | Never-approved proposal declined in favor of a newly approved ADR, with linked rationale | User approval of the replacement |
+| `superseded` | Previously approved decision replaced by a newly approved ADR, with linked rationale | User approval of the replacement |
 
 An approved batch does not bypass dependencies. An ADR cannot enter implementation until all ADRs it depends on are completed.
 
 After approval, the solution description and acceptance criteria are immutable. Changes require a new ADR and new approval. Current status and relationship links may be updated while appending history.
 
-When a replacement is approved for work, the old ADR immediately becomes `rejected`, even if it was previously completed. Preserve its previous completion, version, and evidence. Record that the replacement may still be awaiting implementation.
+When a replacement is approved for work, a previously approved ADR immediately becomes `superseded`, including one that was completed. A never-approved proposal becomes `rejected` instead. Preserve its previous completion, version, and evidence. Record that the replacement may still be awaiting implementation.
 
-Do not reject a decision without a new one. If a proposed decision conflicts with a current ADR, ask the user to resolve the conflict before preparing the new ADR.
+Do not reject or supersede a decision without a new approved one. Preserve legacy rejection entries and interpret them through their history instead of silently rewriting them. If a proposed decision conflicts with a current ADR, ask the user to resolve the conflict before preparing the new ADR.
+
+## Decision quality
+
+Every ADR includes explicit alternatives with reasons for not selecting them, positive and negative consequences, and observable reconsideration triggers. Do not invent alternatives or neutral consequences to fill a template.
+
+Acceptance criteria establish whether the implementation works now. Reconsideration triggers describe when a previously suitable decision needs another look. Record an observation or threshold and its evidence source. Reaching it starts investigation and user discussion, not an automatic replacement.
+
+For neural-model decisions, also record the approach and alternatives, coupling to prompts/schemas/evaluations/infrastructure, operating cost and unacceptable volume, and actual switching cost. Label estimates and unknown measurements. Omit this section for unrelated decisions.
+
+See the [worked ADR example](develop-with-adr/references/example-adr.md). Its facts and figures are hypothetical and do not claim successful implementation or verification.
 
 ## Evidence and correction cycles
 
@@ -217,6 +228,7 @@ Discovery covers local skill directories and supplied catalog names. Nested dire
 | --- | --- |
 | [SKILL.md](develop-with-adr/SKILL.md) | Workflow instructions and approval rules |
 | [templates.md](develop-with-adr/references/templates.md) | ADR and evidence templates |
+| [example-adr.md](develop-with-adr/references/example-adr.md) | Worked hypothetical ADR with alternatives, consequences, model choice and triggers |
 | [portability.md](develop-with-adr/references/portability.md) | Agent handoffs and environment requirements |
 | [check_conflicting_skills.py](develop-with-adr/scripts/check_conflicting_skills.py) | Read-only conflict discovery |
 | [openai.yaml](develop-with-adr/agents/openai.yaml) | Codex interface metadata |
