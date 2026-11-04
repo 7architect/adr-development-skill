@@ -1,0 +1,14 @@
+interface:
+  display_name: Develop with ADRs
+  short_description: Architect, implementer, and verified decision history
+  default_prompt: Use $develop-with-adr to solve a problem through a domain architect,
+    ADRs, implementation, and independent verification.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true
