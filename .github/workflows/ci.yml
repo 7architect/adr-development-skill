@@ -1,0 +1,20 @@
+name: Skill CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run generator regression tests
+        working-directory: develop-with-adr
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python3 -m unittest discover -s tests -v
+      - name: Check repository ADR integrity
+        env:
+          ADR_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: python3 develop-with-adr/scripts/adr.py --project . check --base-ref "$ADR_BASE_REF"

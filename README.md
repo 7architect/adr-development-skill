@@ -31,6 +31,7 @@ ADRs are the project's decision history. Evidence connects that history to a spe
 | User | Select the domain, explain the problem, approve ADRs, resolve conflicts, and authorize correction cycles |
 | Coordinator | Run the initial conflict check, manage the conversation, and pass documents and constraints between agents |
 | Domain architect | Investigate the problem, propose decisions, maintain their relationships, independently run checks, and complete verified ADRs |
+| Independent reviewer | Review the proposal read-only before approval; report concrete findings and an Approve, Request changes or Blocked verdict |
 | Implementer | Implement approved ADRs within their scope and prepare reproducible evidence |
 
 One architect stays focused on the selected domain for the session. The domain can describe business behavior or a technical concern. For example, it can be payments, document processing, storage, or orchestration.
@@ -60,11 +61,12 @@ It adds documentation and approval steps. Account for that overhead when choosin
 2. Ask for the architect's focus domain. The domain can be business-oriented, such as payments, or technical, such as storage or orchestration.
 3. Create a separate architect for that domain for the entire session. The architect asks which problem to solve.
 4. Investigate the code, existing ADRs, evidence, and constraints before drafting a decision.
-5. Write an ADR with the problem, proposed solution, rationale, and measurable acceptance criteria.
-6. Request explicit user approval for that ADR or an enumerated set of ADRs.
-7. Have a separate implementation agent implement the approved decision after every dependency is completed.
-8. Have the architect independently execute checks against every acceptance criterion.
-9. Complete the ADR only when every criterion passes and the evidence document is linked.
+5. Generate an ADR with the researched problem, solution, alternatives, consequences, triggers and measurable acceptance criteria.
+6. Have a separate read-only reviewer inspect the proposal and failure scenarios. Record the current revision's approving review.
+7. Request explicit user approval for that ADR or an enumerated set of reviewed ADRs.
+8. Have a separate implementation agent implement the approved decision after every dependency is completed.
+9. Have the architect independently execute checks and record every attempt, including failures.
+10. Complete the ADR only from its latest passing attempt after every dependency is completed.
 
 The main agent coordinates the conversation and handoffs. The architect owns decisions and independent verification. The implementer owns implementation and its supporting evidence.
 
@@ -191,36 +193,86 @@ Maintain explicit relative links and their reverse relationships:
 
 The registry records the graph; generated Markdown provides the human-readable history, and DOT/GraphML provide viewer files. No separate graph database is required. Templates are in [references/templates.md](develop-with-adr/references/templates.md).
 
-## Deterministic ADR generation and graph files
+## Generator, verification history and CI
 
-The agent supplies researched content as JSON arguments to a Python generator. The script fixes document structure and section order, assigns IDs, records history and updates relationships. It never asks an LLM to lay out the ADR or diagram.
+Agents supply researched JSON to a fixed Python renderer instead of writing ADR Markdown or graph syntax themselves. Requires Python 3.9 or newer with no third-party Python packages.
 
 ```sh
-python3 /path/to/develop-with-adr/scripts/adr.py --project /path/to/project create --input decision.json
-python3 /path/to/develop-with-adr/scripts/adr.py --project /path/to/project link --id ADR-0002 --relation depends_on --target ADR-0001
-python3 /path/to/develop-with-adr/scripts/adr.py --project /path/to/project sync
+python3 /path/to/skill/scripts/adr.py --project /path/to/project create --input decision.json --author actual-architect-id
+python3 /path/to/skill/scripts/adr.py --project /path/to/project check
 ```
 
-Supply real investigated content using the [input example](develop-with-adr/references/adr-input.example.json). See the [full command reference](develop-with-adr/references/generator.md) for draft updates, explicit approvals, replacement decisions, completion evidence and recovery.
+Use the [input example](develop-with-adr/references/adr-input.example.json) for structure, not factual content. The [command reference](develop-with-adr/references/generator.md) describes all arguments and receipt formats.
+
+| Capability | Behavior |
+| --- | --- |
+| Read-only `check` | Validates documents, links, cycles, evidence, receipts, index and graphs without creating or repairing files |
+| Git baseline check | `check --base-ref COMMIT` rejects deleted records/relationships and rewritten approved content, history, receipts or imported-source descriptors, even when current checksums were recomputed |
+| Transaction recovery | A durable journal precedes writes; recovery finishes an interrupted operation without repeating the requested mutation |
+| Decision index | Shows current approved scope separately from verified implementation, blockers and unimplemented replacements |
+| Legacy import | Preserves original bytes and reported history; creates an unapproved wrapper without inventing past approval or completed tests |
+| Design review | A separate reviewer must approve the current content, author, revision and links before user approval |
+| Verification attempts | Every valid attempt is a separate immutable receipt, including failed and blocked checks |
+
+### Review, approval and verification
+
+Run `review` with the actual separate reviewer's structured report and Markdown evidence. Verdicts are `Approve`, `Request changes`, and `Blocked`. Draft revisions, authorship changes or changed outgoing links invalidate earlier review approval. The user must still explicitly approve the reviewed decision through `approve`.
+
+After implementation, the architect actually executes checks, then records them:
+
+```sh
+python3 /path/to/skill/scripts/adr.py --project /path/to/project verify --id ADR-0001 --verification actual-checks.json --evidence docs/evidence/EVID-0003-checks.md
+python3 /path/to/skill/scripts/adr.py --project /path/to/project complete --id ADR-0001 --attempt ATTEMPT-ADR-0001-0001
+```
+
+A successful `verify` command means the attempt was recorded, not that tests passed. The latest attempt must pass every criterion before completion. Failed or blocked attempts remain immutable. Obtain actual user permission and record it through `authorize-fix` before the next correction cycle. Use new evidence documents instead of rewriting attached ones.
+
+### Import historical ADRs
+
+```sh
+python3 /path/to/skill/scripts/adr.py --project /path/to/project import --id ADR-0007 --source docs/adr/ADR-0007-old.md --reported-status completed --note "Mapping basis; historical approval not established" --input mapped.json --author current-architect-id
+```
+
+The historical file stays untouched. The normalized wrapper starts as `accepted-for-discussion`; reported historical completion does not become verified completion. Source checksums and baseline checks protect the retained history. Unmanaged root-level `ADR-*.md` files must be explicitly imported before normal mutations continue.
+
+### CI
+
+Keep a generator copy in the consuming repository, then install its workflow:
+
+```sh
+python3 /path/to/skill/scripts/adr.py --project /path/to/project install-ci --script-path .agents/skills/develop-with-adr/scripts/adr.py
+```
+
+Commit the project-local script, generated `.github/workflows/adr-check.yml`, registry and projections. The workflow fetches Git history and compares with the PR base or previous push. It cannot use a generator installed only in your home directory. An existing different workflow is not overwritten.
+
+This repository's own [CI](.github/workflows/ci.yml) runs the generator regression tests and a read-only integrity check. Branch protection remains a repository setting.
+
+### Generated files
 
 | File | Purpose |
 | --- | --- |
-| `docs/adr/registry.json` | Canonical records, history, fingerprints and relationships |
-| `docs/adr/ADR-0001-short-slug.md` | Generated ADR following the fixed template |
-| `docs/adr/graph.dot` | Graphviz DOT diagram with document links |
+| `docs/adr/registry.json` | Canonical records, fingerprints, receipts, history and typed edges |
+| `docs/adr/ADR-0001-short-slug.md` | Generated ADR |
+| `docs/adr/imported/ADR-0007-short-slug.md` | Imported wrapper; original source retained |
+| `docs/adr/INDEX.md` | Current authority, verification state and blockers |
+| `docs/adr/graph.dot` | Graphviz DOT with document links |
 | `docs/adr/graph.graphml` | GraphML interchange graph with yEd labels |
+| `docs/evidence/REVIEW-ADR-0001-0001.json` | Immutable architecture-review receipt |
+| `docs/evidence/ATTEMPT-ADR-0001-0001.json` | Immutable verification attempt |
 
-Every successful mutation refreshes both graph files, including inactive decisions and attached evidence. Open DOT with a Graphviz-compatible viewer or GraphML with a compatible graph editor such as yEd. With Graphviz installed, render an image using:
+Every mutation refreshes the index and graphs, including inactive ADRs, reviews, attempts and attached evidence. `sync` intentionally rebuilds projections without appending history; use `check` for validation. Open DOT in a Graphviz-compatible viewer or GraphML in a compatible editor such as yEd. SVG conversion remains separate:
 
 ```sh
 dot -Tsvg docs/adr/graph.dot -o docs/adr/graph.svg
 ```
 
-The script requires Python 3.9 or newer and no third-party Python packages. Viewers are optional. SVG rendering is separate from graph generation.
+### Recovery and trust boundary
 
-Missing fields, unknown arguments, duplicate criterion IDs, broken links, dependency/replacement cycles, changed approved content and altered evidence are rejected. Existing unmanaged ADRs require explicit migration; the generator does not parse or overwrite legacy prose.
+A transaction journal stores before/after checksums and the intended state before files are published; the registry commits last. This is crash-recoverable publication, not a filesystem-wide atomic snapshot. Run `recover` to finish a pending operation. A normal mutation also recovers first and returns without applying a second mutation, so a retry does not create duplicate ADRs. Read-only `check` reports pending work without repairing it.
 
-The script validates structured receipts, not the truth of decisions, user consent or actual check execution. Each output file is written atomically, but the set of files is not one filesystem transaction. The registry commits first; `sync --recover` restores projections after an interrupted write once the registry has been inspected.
+Recovery refuses intervening manual changes instead of overwriting them. Advisory locks release automatically on process exit. `sync --recover` is a separate explicit repair of projections from an inspected registry.
+
+The generator validates structured receipts, not authenticated user consent, actual agent identity or test execution. Those remain workflow responsibilities. CI baseline checks add cross-commit immutability checks; they do not make repository owners or workflow edits untrusted-proof.
 
 Run regression tests from the skill directory:
 
@@ -277,7 +329,7 @@ Discovery covers local skill directories and supplied catalog names. Nested dire
 
 The skill follows the [Agent Skills format](https://agentskills.io/specification). Its approval gates and role boundaries are agent instructions, not an external permission-enforcement system. Separate agents are required for the intended workflow; one agent switching roles does not satisfy independent verification.
 
-The conflict checker and workflow scenarios have been checked. A complete end-to-end run in both Codex and Claude Code has not yet been verified.
+The conflict checker, workflow scenarios and generator regression tests have been checked. A complete end-to-end run in both Codex and Claude Code has not yet been verified.
 
 ## License
 

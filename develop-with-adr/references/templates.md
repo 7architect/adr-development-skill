@@ -9,6 +9,7 @@ Replace placeholders with actual information. Use `[]` for absent relationships 
 - ADR
 - Implementation evidence
 - Rejection or replacement rationale evidence
+- Independent architecture review evidence
 
 ## ADR
 
@@ -80,6 +81,15 @@ created: <ISO date>
 <Not received / date, exact user response, message link if available,
 and approved version of the solution body and criteria. Preserve the approved text
 in repository history or provide a verifiable hash of that text. Do not invent chat links.>
+
+## Imported source
+<Generated only for an imported wrapper: retained source link/checksum and unverified reported status.>
+
+## Architecture reviews
+<Generated review-receipt links and verdicts when reviews exist.>
+
+## Verification attempts
+<Generated attempt-receipt links and outcomes when attempts exist.>
 
 ## History
 - <timestamp>: Created after investigation; accepted-for-discussion.
@@ -153,3 +163,32 @@ Separate observed facts from assumptions; include supporting evidence when avail
 <Code actually in operation. The replacement is approved, but its implementation
 and verification require separate implementation evidence.>
 ```
+
+## Independent architecture review evidence
+
+```markdown
+# Architecture review of ADR-0001
+
+## Revision and identities
+<Actual proposal version, architect author, separate reviewer and date.>
+
+## Walkthroughs
+<Trace a concrete request, side effects and observed outcome. Evaluate relevant
+partial failure, retry, concurrency, migration and rollback paths.>
+
+## Findings
+| Severity | Location | Problem | Impact | Evidence | Correction |
+| --- | --- | --- | --- | --- | --- |
+| blocker / important | ... | ... | ... | ... | ... |
+
+<If no findings, say so with the actual review scope. Do not invent findings.>
+
+## Verdict
+<Approve / Request changes / Blocked. Approve requires no unresolved findings.>
+
+## Limitations
+<What was not verified and why.>
+```
+
+Record this report through `review` with a structured receipt. It is distinct from
+user approval and from the architect's verification of implemented code.
